@@ -1,0 +1,13 @@
+version: '3.3'
+services:
+
+
+  hectar: &base_container
+    image: mantiby/hectart:latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./:/app/
+    command: |
+      python server.py
+
