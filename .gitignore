@@ -2,7 +2,7 @@
 .idea/
 
 # Virtual environments
-.venv/
+venv/
 media/
 
 # Byte-compiled / optimized / DLL files
