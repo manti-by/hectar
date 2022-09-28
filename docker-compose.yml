@@ -1,9 +1,8 @@
 version: '3.3'
 services:
 
-
-  hectar: &base_container
-    image: mantiby/hectart:latest
+  hectar:
+    image: mantiby/hectar:latest
     ports:
       - "5000:5000"
     volumes:
