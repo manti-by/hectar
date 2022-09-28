@@ -9,4 +9,3 @@ services:
       - ./:/app/
     command: |
       python server.py
-
