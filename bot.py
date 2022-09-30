@@ -2,7 +2,7 @@ import os
 
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 
-from services import start, message, top_products, chats
+from services import chats, message, start, top_products
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 

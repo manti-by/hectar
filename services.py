@@ -2,8 +2,7 @@ import os
 
 import aiohttp
 import aioredis
-
-from telegram import Update, Bot
+from telegram import Bot, Update
 from telegram.ext import ContextTypes
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -18,7 +17,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await redis.lpush("messages", {"chat_id": update.effective_chat.id, "text": update.message.text})
+    await redis.lpush(
+        "messages", {"chat_id": update.effective_chat.id, "text": update.message.text}
+    )
     await update.message.reply_text(f"Message {update.effective_user.first_name}")
 
 
@@ -33,7 +34,9 @@ async def chats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def top_products(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     async with aiohttp.ClientSession() as session:
-        async with session.get("http://127.0.0.1:8000/api/products/?ordering=-cost") as response:
+        async with session.get(
+            "http://127.0.0.1:8000/api/products/?ordering=-cost"
+        ) as response:
             if response.status == 200:
                 products = await response.json()
                 result = ""

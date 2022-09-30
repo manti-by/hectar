@@ -1,6 +1,7 @@
-from aiohttp_apispec import docs, request_schema, setup_aiohttp_apispec
-from aiohttp import web
 from json import JSONDecodeError
+
+from aiohttp import web
+from aiohttp_apispec import docs, request_schema, setup_aiohttp_apispec
 from marshmallow import ValidationError
 
 from schemas import MessageSchema
@@ -38,8 +39,11 @@ async def index_get(request: web.Request) -> web.Response:
 if __name__ == "__main__":
     app = web.Application()
     setup_aiohttp_apispec(
-        app=app, title="Hectar Bot documentation", version="v1.0",
-        url="/api/docs/swagger.json", swagger_path="/api/docs",
+        app=app,
+        title="Hectar Bot documentation",
+        version="v1.0",
+        url="/api/docs/swagger.json",
+        swagger_path="/api/docs",
     )
     app.add_routes(routes)
     web.run_app(app, port=5000)

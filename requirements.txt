@@ -6,3 +6,7 @@ hiredis==2.0.0
 
 marshmallow==3.18.0
 aiohttp-apispec==2.2.3
+
+ipython==8.5.0
+isort==5.10.1
+black==22.8.0
