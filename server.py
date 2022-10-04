@@ -1,11 +1,16 @@
+import logging
+
 from json import JSONDecodeError
 
-from aiohttp import web
+from aiohttp import web, WSMsgType, WSMessage
 from aiohttp_apispec import docs, request_schema, setup_aiohttp_apispec
 from marshmallow import ValidationError
 
 from schemas import MessageSchema
 from services import send_message
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 routes = web.RouteTableDef()
 
@@ -17,8 +22,7 @@ routes = web.RouteTableDef()
 )
 @request_schema(MessageSchema())
 @routes.post("/")
-async def index_get(request: web.Request) -> web.Response:
-    ...
+async def index_post(request: web.Request) -> web.Response:
     try:
         payload = await request.json()
     except JSONDecodeError:
@@ -34,6 +38,29 @@ async def index_get(request: web.Request) -> web.Response:
         await send_message(data.get("message"), data.get("chat_id"))
         return web.json_response({"status": "sent"})
     return web.json_response({"status": "Message error"})
+
+
+@docs(
+    tags=["websockets"],
+    summary="Send message to server",
+    description="This end-point sends message via websockets",
+)
+@routes.get("/ws")
+async def websockets(request):
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+
+    async for msg in ws:  # type: WSMessage
+        if msg.type == WSMsgType.TEXT:
+            if msg.data == "/close":
+                await ws.close()
+            else:
+                logger.info(msg.data)
+                await send_message(msg.data)
+                await ws.send_str("ok")
+        elif msg.type == WSMsgType.ERROR:
+            logger.error(f"WS connection closed with exception {ws.exception()}")
+    return ws
 
 
 if __name__ == "__main__":

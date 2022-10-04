@@ -47,10 +47,23 @@ async def top_products(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             await update.message.reply_text(result)
 
 
+async def get_chart_ids():
+    return list(set([
+        int(await redis.lindex("chats", index))
+        for index in range(await redis.llen("chats"))
+    ]))
+
+
 async def send_message(text: str, chat_id: int = None) -> None:
     bot = Bot(BOT_TOKEN)
-    if chat_id is None:
-        for index in range(1, redis.llen("chats") + 1):
-            chat_id = await redis.lindex("chats", index)
-            await bot.send_message(chat_id=chat_id, text=text)
-    await bot.send_message(chat_id=chat_id, text=text)
+    if chat_id is not None:
+        await bot.send_message(chat_id=chat_id, text=text)
+        return
+    for chat_id in await get_chart_ids():
+        await bot.send_message(chat_id=chat_id, text=text)
+
+
+async def send_cli_message():
+    async with aiohttp.ClientSession() as session:
+        async with session.ws_connect("http://127.0.0.1:5000/ws") as ws:
+            await ws.send_str("Message from console")
