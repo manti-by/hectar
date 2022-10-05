@@ -1,3 +1,4 @@
+import logging
 import os
 
 import aiohttp
@@ -6,21 +7,29 @@ from telegram import Bot, Update
 from telegram.ext import ContextTypes
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
 
+logger = logging.getLogger(__name__)
 redis = aioredis.from_url("redis://localhost")
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await redis.lpush("chats", update.effective_chat.id)
-    await update.message.reply_text(f"Start {update.effective_user.first_name}")
+    await update.message.reply_text("ok")
 
 
 async def message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await redis.lpush(
-        "messages", {"chat_id": update.effective_chat.id, "text": update.message.text}
-    )
-    await update.message.reply_text(f"Message {update.effective_user.first_name}")
+    await redis.publish("messages", update.message.text)
+    await update.message.reply_text("ok")
+
+
+async def redis_listener(ws):
+    async with redis.pubsub() as channel:
+        await channel.subscribe("messages")
+        async for response in channel.listen():
+            if isinstance(response.get("data"), bytes):
+                await ws.send_str(response.get("data").decode())
+            else:
+                logger.info(f"pubsub channel: {response.get('data')}")
 
 
 async def chats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -63,7 +72,14 @@ async def send_message(text: str, chat_id: int = None) -> None:
         await bot.send_message(chat_id=chat_id, text=text)
 
 
-async def send_cli_message():
+async def subscribe_to_redis_channel():
+    async with redis.pubsub() as channel:
+        await channel.subscribe("messages")
+        async for response in channel.listen():
+            logger.info(response.get("data"))
+
+
+async def send_ws_message():
     async with aiohttp.ClientSession() as session:
         async with session.ws_connect("http://127.0.0.1:5000/ws") as ws:
             await ws.send_str("Message from console")
