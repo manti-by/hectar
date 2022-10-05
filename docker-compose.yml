@@ -1,11 +1,23 @@
 version: '3.3'
 services:
 
-  hectar:
+  redis:
+    image: redis:latest
+
+  server: &base_container
     image: mantiby/hectar:latest
     ports:
       - "5000:5000"
     volumes:
       - ./:/app/
+    environment:
+      - REDIS_HOST=redis
+      - BOT_TOKEN=$BOT_TOKEN
     command: |
       python server.py
+
+  bot:
+    <<: *base_container
+    ports: []
+    command: |
+      python bot.py
