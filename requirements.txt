@@ -9,6 +9,8 @@ aiohttp-apispec==2.2.3
 
 opencv-python==4.6.0.66
 matplotlib==3.6.1
+numpy==1.23.3
+scipy==1.9.2
 
 ipython==8.5.0
 isort==5.10.1
