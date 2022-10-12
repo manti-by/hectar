@@ -1,9 +1,9 @@
 import asyncio
 import logging
+from json import JSONDecodeError
 
 from aiohttp import WSMessage, WSMsgType, web
 from aiohttp_apispec import docs, request_schema, setup_aiohttp_apispec
-from json import JSONDecodeError
 from marshmallow import ValidationError
 
 from schemas import MessageSchema

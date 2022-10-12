@@ -57,10 +57,14 @@ async def top_products(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 
 async def get_chart_ids():
-    return list(set([
-        int(await redis.lindex("chats", index))
-        for index in range(await redis.llen("chats"))
-    ]))
+    return list(
+        set(
+            [
+                int(await redis.lindex("chats", index))
+                for index in range(await redis.llen("chats"))
+            ]
+        )
+    )
 
 
 async def send_message(text: str, chat_id: int = None) -> None:

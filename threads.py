@@ -1,5 +1,4 @@
 import random
-
 from threading import Thread, get_ident
 from time import sleep
 

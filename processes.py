@@ -1,6 +1,5 @@
-import random
 import os
-
+import random
 from multiprocessing import Process
 from time import sleep
 
